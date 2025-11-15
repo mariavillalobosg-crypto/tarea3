@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista de Tareas + Contador</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #97a2d7ff 0%, #a282c2ff 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .header {
+            margin-bottom: 20px;
+            text-align: center;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 15px;
+        }
+
+        .info {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.5;
+        }
+
+        .info strong {
+            display: block;
+            color: #333;
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        h2 {
+            color: #333;
+            font-size: 18px;
+            margin: 20px 0 15px 0;
+        }
+
+        /* Sección Contador */
+        .counter-section {
+            background: #f8f9ff;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .counter-display {
+            font-size: 48px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 15px 0;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .counter-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            min-width: 50px;
+        }
+
+        .btn-decrease {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-decrease:hover {
+            background: #ee5a52;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-reset {
+            background: #ffa500;
+            color: white;
+        }
+
+        .btn-reset:hover {
+            background: #ff9500;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 165, 0, 0.3);
+        }
+
+        .btn-increase {
+            background: #51cf66;
+            color: white;
+        }
+
+        .btn-increase:hover {
+            background: #40c057;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(81, 207, 102, 0.3);
+        }
+
+        /* Sección Lista de Tareas */
+        .task-input-section {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"] {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-add {
+            background: #667eea;
+            color: white;
+            padding: 12px 20px;
+        }
+
+        .btn-add:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Filtros y Controles */
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 8px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .filter-btn {
+            padding: 8px 12px;
+            background: #f0f0f0;
+            border: 2px solid #e0e0e0;
+            color: #333;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+            border-color: #667eea;
+        }
+
+        .filter-btn:hover {
+            border-color: #667eea;
+        }
+
+        /* Lista de Tareas */
+        .task-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .task-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .task-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .task-list::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .task-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px;
+            background: #f9f9f9;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+            to {
+                opacity: 0;
+                transform: translateX(20px);
+            }
+        }
+
+        .task-item.removing {
+            animation: slideOut 0.3s ease forwards;
+        }
+
+        .task-item.completed {
+            background: #f0f9ff;
+            border-left-color: #51cf66;
+        }
+
+        .task-item.completed .task-text {
+            text-decoration: line-through;
+            color: #999;
+        }
+
+        .task-checkbox {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .task-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .task-text {
+            color: #333;
+            font-size: 14px;
+            word-break: break-word;
+            transition: all 0.3s ease;
+        }
+
+        .task-date {
+            font-size: 11px;
+            color: #999;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 5px;
+        }
+
+        .btn-small {
+            padding: 6px 10px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-edit {
+            color: #667eea;
+        }
+
+        .btn-edit:hover {
+            background: #e3ebff;
+            border-color: #667eea;
+        }
+
+        .btn-delete {
+            color: #ff6b6b;
+        }
+
+        .btn-delete:hover {
+            background: #ffe3e3;
+            border-color: #ff6b6b;
+        }
+
+        .empty-message {
+            text-align: center;
+            color: #999;
+            padding: 30px 20px;
+            font-size: 14px;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 16px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        /* Modal para editar */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 25px;
+            border-radius: 8px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            animation: slideIn 0.3s ease;
+        }
+
+        .modal-content h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .modal-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-modal {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-save {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-save:hover {
+            background: #5568d3;
+        }
+
+        .btn-cancel {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+        }
+
+        .btn-cancel:hover {
+            background: #e0e0e0;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .counter-display {
+                font-size: 40px;
+            }
+
+            .controls {
+                flex-direction: column;
+            }
+
+            .search-box {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Bloque de información personal -->
+        <div class="header">
+            <div class="info">
+                <strong>Desarrollador: María Villalobos G.</strong>
+                Grupo: Desarrollo Web<br>
+                Fecha: 15 de Noviembre de 2025
+            </div>
+            <h1>📋 Gestor de Tareas</h1>
+        </div>
+
+        <!-- Sección del Contador -->
+        <section class="counter-section">
+            <h2>Contador</h2>
+            <div class="counter-display" aria-live="polite" aria-atomic="true" id="counterDisplay">0</div>
+            <div class="counter-buttons">
+                <button class="btn-decrease" id="btnDecrease" aria-label="Disminuir contador">−</button>
+                <button class="btn-reset" id="btnReset" aria-label="Reiniciar contador">Reiniciar</button>
+                <button class="btn-increase" id="btnIncrease" aria-label="Aumentar contador">+</button>
+            </div>
+        </section>
+
+        <!-- Sección de Lista de Tareas -->
+        <section>
+            <h2>Mis Tareas</h2>
+            
+            <!-- Input para nueva tarea -->
+            <div class="task-input-section">
+                <div style="width: 100%;">
+                    <label for="taskInput">Añadir nueva tarea</label>
+                    <input 
+                        type="text" 
+                        id="taskInput" 
+                        placeholder="Escribe una tarea..." 
+                        aria-label="Campo para añadir nueva tarea"
+                    >
+                </div>
+                <button class="btn-add" id="btnAddTask" aria-label="Añadir tarea">Añadir</button>
+            </div>
+
+            <!-- Controles de filtro y búsqueda -->
+            <div class="controls">
+                <div class="search-box">
+                    <input 
+                        type="text" 
+                        id="searchInput" 
+                        placeholder="Buscar tareas..." 
+                        aria-label="Buscar tareas"
+                    >
+                </div>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="all" aria-label="Mostrar todas las tareas">Todas</button>
+                    <button class="filter-btn" data-filter="active" aria-label="Mostrar tareas activas">Activas</button>
+                    <button class="filter-btn" data-filter="completed" aria-label="Mostrar tareas completadas">Completadas</button>
+                </div>
+            </div>
+
+            <!-- Lista de tareas -->
+            <div class="task-list" id="taskList" role="list" aria-label="Lista de tareas">
+                <div class="empty-message">No hay tareas. ¡Crea una para empezar!</div>
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="stats" aria-live="polite">
+                <div class="stat-item">
+                    <span>Total</span>
+                    <span class="stat-value" id="totalTasks">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Activas</span>
+                    <span class="stat-value" id="activeTasks">0</span>
+                </div>
+                <div class="stat-item">
+                    <span>Completadas</span>
+                    <span class="stat-value" id="completedTasks">0</span>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Modal para editar tareas -->
+    <div class="modal" id="editModal">
+        <div class="modal-content">
+            <h3>Editar Tarea</h3>
+            <input 
+                type="text" 
+                class="modal-input" 
+                id="editInput" 
+                aria-label="Campo para editar tarea"
+            >
+            <div class="modal-buttons">
+                <button class="btn-modal btn-save" id="btnSaveEdit" aria-label="Guardar cambios">Guardar</button>
+                <button class="btn-modal btn-cancel" id="btnCancelEdit" aria-label="Cancelar edición">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /**
+         * VARIABLES GLOBALES
+         * Gestiona el estado de la aplicación
+         */
+        let tasks = []; // Array para almacenar las tareas
+        let counter = 0; // Valor del contador
+        let currentFilter = 'all'; // Filtro actual (all, active, completed)
+        let currentSearch = ''; // Búsqueda actual
+        let editingTaskId = null; // ID de la tarea siendo editada
+
+        // Constantes para localStorage
+        const STORAGE_TASKS_KEY = 'tasks';
+        const STORAGE_COUNTER_KEY = 'counter';
+
+        /**
+         * FUNCIÓN: Inicializar aplicación
+         * Se ejecuta al cargar la página
+         * Carga datos del localStorage y configura event listeners
+         */
+        function initApp() {
+            loadFromStorage();
+            setupEventListeners();
+            renderTasks();
+            updateCounterDisplay();
+            updateStats();
+        }
+
+        /**
+         * FUNCIÓN: Configurar listeners de eventos
+         * Enlaza los elementos del DOM con sus funciones de manejo
+         */
+        function setupEventListeners() {
+            // Contador
+            document.getElementById('btnIncrease').addEventListener('click', increaseCounter);
+            document.getElementById('btnDecrease').addEventListener('click', decreaseCounter);
+            document.getElementById('btnReset').addEventListener('click', resetCounter);
+
+            // Tareas
+            document.getElementById('btnAddTask').addEventListener('click', addTask);
+            document.getElementById('taskInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') addTask();
+            });
+
+            // Búsqueda y filtros
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                currentSearch = e.target.value.toLowerCase();
+                renderTasks();
+            });
+
+            // Botones de filtro
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                    e.target.classList.add('active');
+                    currentFilter = e.target.dataset.filter;
+                    renderTasks();
+                });
+            });
+
+            // Modal
+            document.getElementById('btnCancelEdit').addEventListener('click', closeEditModal);
+            document.getElementById('btnSaveEdit').addEventListener('click', saveEdit);
+            document.getElementById('editInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') saveEdit();
+            });
+        }
+
+        /**
+         * FUNCIÓN: Aumentar el contador
+         * Incrementa el valor en 1 y guarda en localStorage
+         */
+        function increaseCounter() {
+            counter++;
+            updateCounterDisplay();
+            saveToStorage();
+        }
+
+        /**
+         * FUNCIÓN: Disminuir el contador
+         * Decrementa el valor en 1 y guarda en localStorage
+         */
+        function decreaseCounter() {
+            counter--;
+            updateCounterDisplay();
+            saveToStorage();
+        }
+
+        /**
+         * FUNCIÓN: Reiniciar el contador
+         * Establece el contador a 0 y guarda en localStorage
+         */
+        function resetCounter() {
+            counter = 0;
+            updateCounterDisplay();
+            saveToStorage();
+        }
+
+        /**
+         * FUNCIÓN: Actualizar display del contador
+         * Refleja el valor actual en la interfaz
+         */
+        function updateCounterDisplay() {
+            document.getElementById('counterDisplay').textContent = counter;
+        }
+
+        /**
+         * FUNCIÓN: Añadir nueva tarea
+         * Crea una tarea con timestamp, la almacena y renderiza
+         */
+        function addTask() {
+            const input = document.getElementById('taskInput');
+            const text = input.value.trim();
+
+            if (!text) {
+                alert('Por favor, escribe una tarea');
+                return;
+            }
+
+            // Crear objeto de tarea con propiedades
+            const task = {
+                id: Date.now(), // ID único basado en timestamp
+                text: text,
+                completed: false,
+                createdAt: new Date().toLocaleString('es-ES') // Fecha y hora de creación
+            };
+
+            tasks.push(task);
+            input.value = '';
+            saveToStorage();
+            renderTasks();
+            updateStats();
+        }
+
+        /**
+         * FUNCIÓN: Renderizar tareas en el DOM
+         * Genera el HTML de la lista aplicando filtros y búsqueda
+         */
+        function renderTasks() {
+            const taskList = document.getElementById('taskList');
+            
+            // Filtrar tareas según criterios
+            let filteredTasks = tasks.filter(task => {
+                // Aplicar filtro de estado
+                if (currentFilter === 'active' && task.completed) return false;
+                if (currentFilter === 'completed' && !task.completed) return false;
+
+                // Aplicar búsqueda
+                if (currentSearch && !task.text.toLowerCase().includes(currentSearch)) {
+                    return false;
+                }
+
+                return true;
+            });
+
+            // Mostrar mensaje si no hay tareas
+            if (filteredTasks.length === 0) {
+                taskList.innerHTML = '<div class="empty-message">No hay tareas que mostrar</div>';
+                return;
+            }
+
+            // Renderizar cada tarea
+            taskList.innerHTML = filteredTasks.map(task => `
+                <div class="task-item ${task.completed ? 'completed' : ''}" role="listitem">
+                    <input 
+                        type="checkbox" 
+                        class="task-checkbox" 
+                        ${task.completed ? 'checked' : ''}
+                        onchange="toggleTask(${task.id})"
+                        aria-label="Marcar tarea como completada: ${task.text}"
+                    >
+                    <div class="task-content">
+                        <span class="task-text">${escapeHtml(task.text)}</span>
+                        <span class="task-date">📅 ${task.createdAt}</span>
+                    </div>
+                    <div class="task-actions">
+                        <button 
+                            class="btn-small btn-edit" 
+                            onclick="openEditModal(${task.id})"
+                            aria-label="Editar tarea: ${task.text}"
+                        >✏️ Editar</button>
+                        <button 
+                            class="btn-small btn-delete" 
+                            onclick="deleteTask(${task.id})"
+                            aria-label="Eliminar tarea: ${task.text}"
+                        >🗑️ Borrar</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        /**
+         * FUNCIÓN: Alternar estado de completado
+         * Marca/desmarca una tarea como completada
+         */
+        function toggleTask(id) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.completed = !task.completed;
+                saveToStorage();
+                renderTasks();
+                updateStats();
+            }
+        }
+
+        /**
+         * FUNCIÓN: Eliminar tarea
+         * Remueve una tarea de la lista con animación
+         */
+        function deleteTask(id) {
+            if (!confirm('¿Estás seguro de que deseas eliminar esta tarea?')) return;
+            
+            tasks = tasks.filter(t => t.id !== id);
+            saveToStorage();
+            renderTasks();
+            updateStats();
+        }
+
+        /**
+         * FUNCIÓN: Abrir modal de edición
+         * Muestra el modal y carga el texto de la tarea
+         */
+        function openEditModal(id) {
+            const task = tasks.find(t => t.id === id);
+            if (!task) return;
+
+            editingTaskId = id;
+            document.getElementById('editInput').value = task.text;
+            document.getElementById('editModal').classList.add('active');
+            document.getElementById('editInput').focus();
+        }
+
+        /**
+         * FUNCIÓN: Cerrar modal de edición
+         * Oculta el modal y limpia el estado
+         */
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('active');
+            editingTaskId = null;
+        }
+
+        /**
+         * FUNCIÓN: Guardar edición de tarea
+         * Actualiza el texto de la tarea y cierra el modal
+         */
+        function saveEdit() {
+            if (!editingTaskId) return;
+
+            const newText = document.getElementById('editInput').value.trim();
+            if (!newText) {
+                alert('El texto no puede estar vacío');
+                return;
+            }
+
+            const task = tasks.find(t => t.id === editingTaskId);
+            if (task) {
+                task.text = newText;
+                saveToStorage();
+                renderTasks();
+            }
+
+            closeEditModal();
+        }
+
+        /**
+         * FUNCIÓN: Actualizar estadísticas
+         * Calcula y muestra el conteo de tareas en diferentes estados
+         */
+        function updateStats() {
+            const total = tasks.length;
+            const completed = tasks.filter(t => t.completed).length;
+            const active = total - completed;
+
+            document.getElementById('totalTasks').textContent = total;
+            document.getElementById('activeTasks').textContent = active;
+            document.getElementById('completedTasks').textContent = completed;
+        }
+
+        /**
+         * FUNCIÓN: Guardar en localStorage
+         * Persiste los datos de tareas y contador en el navegador
+         */
+        function saveToStorage() {
+            localStorage.setItem(STORAGE_TASKS_KEY, JSON.stringify(tasks));
+            localStorage.setItem(STORAGE_COUNTER_KEY, JSON.stringify(counter));
+        }
+
+        /**
+         * FUNCIÓN: Cargar desde localStorage
+         * Recupera los datos guardados al iniciar la aplicación
+         */
+        function loadFromStorage() {
+            const savedTasks = localStorage.getItem(STORAGE_TASKS_KEY);
+            const savedCounter = localStorage.getItem(STORAGE_COUNTER_KEY);
+
+            if (savedTasks) {
+                tasks = JSON.parse(savedTasks);
+            }
+
+            if (savedCounter) {
+                counter = JSON.parse(savedCounter);
+            }
+        }
+
+        /**
+         * FUNCIÓN: Escapar caracteres HTML
+         * Previene inyección de código al mostrar texto de usuario
+         */
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Inicializar aplicación cuando el DOM esté listo
+        document.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
